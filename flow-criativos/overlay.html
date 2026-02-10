@@ -1,0 +1,331 @@
+<!-- Flow Criativos v2.0 — Interface injetada na página do Flow (4 abas) -->
+<div id="fc-overlay">
+  <!-- Header -->
+  <div class="fc-header">
+    <span class="fc-title">Flow Criativos</span>
+    <span class="fc-version">v2.0</span>
+    <div class="fc-header-actions">
+      <button id="fcMinimize" class="fc-icon-btn" title="Minimizar">
+        <span class="material-symbols-outlined">remove</span>
+      </button>
+      <button id="fcClose" class="fc-icon-btn" title="Fechar">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="fc-tabs">
+    <button class="fc-tab active" data-tab="batch">📦 Batch</button>
+    <button class="fc-tab" data-tab="fila">🚀 Fila</button>
+    <button class="fc-tab" data-tab="downloads">📥 Downloads</button>
+    <button class="fc-tab" data-tab="config">⚙️ Config</button>
+  </div>
+
+  <!-- Tab Content -->
+  <div class="fc-content">
+
+    <!-- ═══════════════ ABA BATCH ═══════════════ -->
+    <div id="fc-tab-batch" class="fc-tab-pane active">
+
+      <!-- Criativo Form -->
+      <div class="fc-section">
+        <div class="fc-section-header">
+          <span>Novo Criativo</span>
+        </div>
+
+        <!-- Nome do Criativo -->
+        <div class="fc-field">
+          <label for="fcCriativoName">Nome</label>
+          <input type="text" id="fcCriativoName" placeholder="Ex: Criativo-01" />
+        </div>
+
+        <!-- Modo -->
+        <div class="fc-field">
+          <label for="fcMode">Modo</label>
+          <select id="fcMode">
+            <option value="image-to-video">Com Avatar (Image-to-Video)</option>
+            <option value="text-to-video">Só Texto (Text-to-Video)</option>
+          </select>
+        </div>
+
+        <!-- Avatar Upload (só image-to-video) -->
+        <div id="fcAvatarSection" class="fc-field">
+          <label>Avatar</label>
+          <div class="fc-avatar-row">
+            <button id="fcUploadAvatar" class="fc-btn fc-btn-secondary fc-btn-sm">
+              <span class="material-symbols-outlined">upload</span> Upload Avatar
+            </button>
+            <input type="file" id="fcAvatarInput" accept="image/*" style="display:none" />
+            <span id="fcAvatarName" class="fc-text-muted">Nenhum avatar selecionado</span>
+          </div>
+          <div id="fcAvatarPreview" class="fc-avatar-preview" style="display:none">
+            <img id="fcAvatarImg" src="" alt="Avatar" />
+            <button id="fcRemoveAvatar" class="fc-btn-icon-sm" title="Remover">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Orientação -->
+        <div class="fc-field">
+          <label for="fcOrientation">Orientação</label>
+          <select id="fcOrientation">
+            <option value="portrait">Portrait (9:16)</option>
+            <option value="landscape">Landscape (16:9)</option>
+          </select>
+        </div>
+
+        <!-- Template -->
+        <div class="fc-field">
+          <label for="fcTemplate">Template</label>
+          <div class="fc-template-row">
+            <select id="fcTemplate">
+              <option value="custom">Personalizado</option>
+              <option value="animar_fala">Animar + Fala</option>
+              <option value="ugc_realista">UGC Realista</option>
+              <option value="skincare">Skincare</option>
+              <option value="unboxing">Unboxing</option>
+              <option value="depoimento">Depoimento</option>
+              <option value="cinematografico">Cinematográfico</option>
+              <option value="showcase_produto">Showcase Produto</option>
+              <option value="talking_head">Talking Head</option>
+              <option value="antes_depois">Antes/Depois</option>
+            </select>
+            <button id="fcSaveTemplate" class="fc-btn-icon-sm" title="Salvar template customizado">
+              💾
+            </button>
+          </div>
+        </div>
+
+        <!-- Text Base -->
+        <div class="fc-field">
+          <label for="fcTextBase">
+            Text Base
+            <span class="fc-tooltip" title="Texto técnico (em inglês) que vai antes de cada frase. Ex: 'A person speaking directly to camera, natural lipsync, saying:'">ℹ️</span>
+          </label>
+          <textarea id="fcTextBase" rows="2" placeholder="A person speaking directly to camera, natural lipsync, saying:"></textarea>
+        </div>
+
+        <!-- Frases -->
+        <div class="fc-field">
+          <label for="fcPhrases">
+            Frases
+            <span class="fc-text-muted">(1 por linha = 1 clip)</span>
+          </label>
+          <div class="fc-phrases-actions">
+            <button id="fcUploadPhrases" class="fc-btn fc-btn-secondary fc-btn-sm">
+              <span class="material-symbols-outlined">upload_file</span> Carregar .txt
+            </button>
+            <input type="file" id="fcPhrasesInput" accept=".txt" style="display:none" />
+          </div>
+          <textarea id="fcPhrases" rows="6" placeholder="Olá! Eu sou a Maria e vou te contar...&#10;Esse produto mudou minha vida...&#10;Não acredito que demorei tanto..."></textarea>
+          <div class="fc-phrases-count">
+            <span id="fcPhraseCount">0</span> frases
+          </div>
+        </div>
+
+        <!-- Botão Adicionar -->
+        <button id="fcAddCriativo" class="fc-btn fc-btn-primary fc-btn-block">
+          <span class="material-symbols-outlined">add</span> Adicionar à Fila
+        </button>
+      </div>
+
+      <!-- Lista de Criativos na Fila -->
+      <div class="fc-section">
+        <div class="fc-section-header">
+          <span>Criativos na Fila</span>
+          <span id="fcCriativoCount" class="fc-badge">0</span>
+        </div>
+        <div id="fcCriativoList" class="fc-criativo-list">
+          <p class="fc-text-muted fc-text-center">Nenhum criativo adicionado</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ ABA FILA ═══════════════ -->
+    <div id="fc-tab-fila" class="fc-tab-pane">
+
+      <!-- Controles -->
+      <div class="fc-section">
+        <div class="fc-control-row">
+          <button id="fcStart" class="fc-btn fc-btn-success">
+            <span class="material-symbols-outlined">play_arrow</span> Iniciar
+          </button>
+          <button id="fcPause" class="fc-btn fc-btn-warning" disabled>
+            <span class="material-symbols-outlined">pause</span> Pausar
+          </button>
+          <button id="fcStop" class="fc-btn fc-btn-danger" disabled>
+            <span class="material-symbols-outlined">stop</span> Parar
+          </button>
+          <button id="fcSkip" class="fc-btn fc-btn-secondary" disabled>
+            <span class="material-symbols-outlined">skip_next</span> Pular
+          </button>
+        </div>
+      </div>
+
+      <!-- Progresso -->
+      <div class="fc-section">
+        <div class="fc-section-header"><span>Progresso</span></div>
+        <div class="fc-progress-container">
+          <progress id="fcProgressBar" value="0" max="100"></progress>
+          <span id="fcProgressText" class="fc-text-muted">0%</span>
+        </div>
+        <div id="fcStatus" class="fc-status">Pronto</div>
+      </div>
+
+      <!-- Fila de Execução -->
+      <div class="fc-section">
+        <div class="fc-section-header">
+          <span>Fila de Execução</span>
+          <div class="fc-header-actions">
+            <button id="fcResetAll" class="fc-btn-icon-sm" title="Resetar todos concluídos">
+              <span class="material-symbols-outlined">restart_alt</span>
+            </button>
+            <button id="fcClearQueue" class="fc-btn-icon-sm" title="Limpar fila">
+              <span class="material-symbols-outlined">delete_sweep</span>
+            </button>
+          </div>
+        </div>
+        <div id="fcQueueList" class="fc-queue-list">
+          <p class="fc-text-muted fc-text-center">Fila vazia</p>
+        </div>
+      </div>
+
+      <!-- Log -->
+      <div class="fc-section">
+        <div class="fc-section-header"><span>Log</span></div>
+        <div id="fcLog" class="fc-log"></div>
+      </div>
+
+      <!-- Falhados -->
+      <div class="fc-section">
+        <div class="fc-section-header">
+          <span>Falhados</span>
+          <span id="fcFailedCount" class="fc-badge">0</span>
+        </div>
+        <div id="fcFailedList" class="fc-failed-list"></div>
+        <div class="fc-control-row" style="margin-top:8px">
+          <button id="fcRetryFailed" class="fc-btn fc-btn-warning fc-btn-sm" disabled>
+            <span class="material-symbols-outlined">replay</span> Retentar
+          </button>
+          <button id="fcCopyFailed" class="fc-btn fc-btn-secondary fc-btn-sm" disabled>
+            <span class="material-symbols-outlined">content_copy</span> Copiar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ ABA DOWNLOADS ═══════════════ -->
+    <div id="fc-tab-downloads" class="fc-tab-pane">
+
+      <div class="fc-section">
+        <div class="fc-section-header"><span>Scanner Auto-Download</span></div>
+        <div class="fc-field-inline">
+          <label for="fcAutoDownload">Auto-Download</label>
+          <input type="checkbox" id="fcAutoDownload" checked />
+        </div>
+        <div id="fcScannerStatus" class="fc-status fc-text-muted">Scanner parado</div>
+        <div class="fc-field-inline">
+          <label>Downloads realizados:</label>
+          <span id="fcDownloadCount" class="fc-badge">0</span>
+        </div>
+      </div>
+
+      <div class="fc-section">
+        <div class="fc-section-header"><span>Download Manual</span></div>
+        <p class="fc-text-muted fc-text-sm">
+          Baixa todos os vídeos do projeto atual com scroll incremental para detectar lazy loading.
+        </p>
+        <button id="fcDownloadProject" class="fc-btn fc-btn-primary fc-btn-block">
+          <span class="material-symbols-outlined">download</span> Baixar Projeto
+        </button>
+        <div id="fcManualDownloadStatus" class="fc-status fc-text-muted" style="margin-top:8px"></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ ABA CONFIG ═══════════════ -->
+    <div id="fc-tab-config" class="fc-tab-pane">
+
+      <div class="fc-section">
+        <div class="fc-section-header"><span>Geração</span></div>
+
+        <div class="fc-field">
+          <label for="fcModel">Modelo</label>
+          <select id="fcModel">
+            <option value="default">Veo 3.1 - Fast</option>
+            <option value="veo3_fast_low">Veo 3.1 - Fast [Lower Priority]</option>
+            <option value="veo3_quality">Veo 3.1 - Quality</option>
+            <option value="veo2_fast">Veo 2 - Fast</option>
+            <option value="veo2_quality">Veo 2 - Quality</option>
+          </select>
+        </div>
+
+        <div class="fc-field">
+          <label for="fcOutputs">Outputs por prompt</label>
+          <select id="fcOutputs">
+            <option value="1" selected>1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="fc-section">
+        <div class="fc-section-header"><span>Downloads</span></div>
+
+        <div class="fc-field">
+          <label for="fcResolution">Resolução DL</label>
+          <select id="fcResolution">
+            <option value="720p" selected>720p</option>
+            <option value="1080p">1080p</option>
+            <option value="4k">4K</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="fc-section">
+        <div class="fc-section-header"><span>Timing</span></div>
+
+        <div class="fc-field">
+          <label for="fcDelayMin">Delay mínimo (ms)</label>
+          <input type="number" id="fcDelayMin" value="2000" min="500" step="500" />
+        </div>
+
+        <div class="fc-field">
+          <label for="fcDelayMax">Delay máximo (ms)</label>
+          <input type="number" id="fcDelayMax" value="4000" min="1000" step="500" />
+        </div>
+
+        <div class="fc-field">
+          <label for="fcRetryTimeout">Retry após (s)</label>
+          <input type="number" id="fcRetryTimeout" value="90" min="30" step="10" />
+        </div>
+
+        <div class="fc-field">
+          <label for="fcMaxRetries">Max retries</label>
+          <input type="number" id="fcMaxRetries" value="3" min="1" max="10" />
+        </div>
+
+        <div class="fc-field">
+          <label for="fcScanInterval">Scan interval (s)</label>
+          <input type="number" id="fcScanInterval" value="5" min="2" max="30" />
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /fc-content -->
+
+  <!-- Confirm Clear Modal -->
+  <div id="fcConfirmModal" class="fc-modal" style="display:none">
+    <div class="fc-modal-content">
+      <p>Tem certeza que deseja limpar toda a fila?</p>
+      <div class="fc-control-row">
+        <button id="fcConfirmClear" class="fc-btn fc-btn-danger">Sim, limpar</button>
+        <button id="fcCancelClear" class="fc-btn fc-btn-secondary">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+</div>
