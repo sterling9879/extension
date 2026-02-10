@@ -942,8 +942,78 @@ class FlowCriativos {
       this._updatePhraseCount();
 
       console.log('[FlowCriativos] Initialization complete.');
+
+      // Check if we need to resume automation after a navigation
+      await this._checkResumeAfterNavigation();
     } catch (err) {
       console.error('[FlowCriativos] Initialization failed:', err);
+    }
+  }
+
+  /**
+   * Check chrome.storage for a resume flag set before page navigation.
+   * If found, restore state and continue automation.
+   */
+  async _checkResumeAfterNavigation() {
+    try {
+      const data = await chrome.storage.local.get('fc_resumeState');
+      if (!data.fc_resumeState) return;
+
+      // Only resume if we're on a /project/ page — the homepage is an
+      // intermediate step during createNewProject and we must NOT consume
+      // the resume state there (background.js will navigate us to /project/).
+      if (!window.location.href.includes('/project/')) {
+        console.log('[FlowCriativos] Resume state found but not on /project/ page, skipping.');
+        return;
+      }
+
+      const saved = data.fc_resumeState;
+      await chrome.storage.local.remove('fc_resumeState');
+
+      console.log('[FlowCriativos] Resume state found on project page, restoring automation...');
+
+      // Restore state
+      this.state.masterQueue = saved.masterQueue || [];
+      this.state.currentJobIndex = saved.currentJobIndex || 0;
+      this.state.masterTaskList = saved.masterTaskList || [];
+      this.state.failedPromptsList = saved.failedPromptsList || [];
+      this.state.newlyDownloadedCount = saved.newlyDownloadedCount || 0;
+      this.state.autoStartNextJob = saved.autoStartNextJob !== false;
+      this.state.nextProjectCounter = saved.nextProjectCounter || 1;
+      this.state.downloadedVideoUrls = new Set();
+
+      // Reset current job status to 'pending' so _processNextJob can find it
+      // (it was set to 'running' before state was saved)
+      const currentJob = this.state.masterQueue[this.state.currentJobIndex];
+      if (currentJob && currentJob.status === 'running') {
+        currentJob.status = 'pending';
+      }
+
+      // Resolve tab ID for the new page
+      await this._resolveFlowTabId();
+
+      // Update UI
+      this._renderCriativoList();
+      this._renderQueueList();
+
+      // Wait for page to be fully ready
+      await this._sleep(3000);
+
+      // Resume: mark as running and continue
+      this.state.isRunning = true;
+      this.state.stopRequested = false;
+      this.state.isPaused = false;
+      this._updateButtonStates();
+      this._log('Retomando automacao apos navegacao...', 'system');
+
+      // Flag: we're already on the new project page, don't navigate again
+      this.state._isResumedAfterNavigation = true;
+
+      // Process next job (the page is already on the new project)
+      await this._processNextJob(true);
+    } catch (err) {
+      console.error('[FlowCriativos] Resume failed:', err);
+      this._log('Falha ao retomar: ' + err.message, 'error');
     }
   }
 
@@ -966,6 +1036,12 @@ class FlowCriativos {
    * Also injects Material Symbols font and a toggle button.
    */
   async _injectOverlay() {
+    // Guard against duplicate overlay
+    if (document.getElementById('fc-overlay-wrapper')) {
+      console.log('[FlowCriativos] Overlay already exists, skipping injection.');
+      return;
+    }
+
     // Inject Material Symbols Outlined font
     if (!document.querySelector('link[href*="Material+Symbols+Outlined"]')) {
       const fontLink = document.createElement('link');
@@ -2428,16 +2504,23 @@ class FlowCriativos {
   async _setupAndRunJob(jobConfig, isSubsequent) {
     let alreadyOnProject = false;
 
-    if (isSubsequent) {
-      try {
-        const tabUrlResponse = await chrome.runtime.sendMessage({
-          type: 'getTabUrl', tabId: this.state.flowTabId
-        });
-        if (tabUrlResponse?.success && tabUrlResponse.url?.includes('/tools/flow/project')) {
-          alreadyOnProject = true;
-        }
-      } catch (_err) {}
+    // Check if we're already on a project page (for any job, not just subsequent)
+    try {
+      const tabUrlResponse = await chrome.runtime.sendMessage({
+        type: 'getTabUrl', tabId: this.state.flowTabId
+      });
+      if (tabUrlResponse?.success && tabUrlResponse.url?.includes('/tools/flow/project')) {
+        alreadyOnProject = true;
+      }
+    } catch (_err) {}
+
+    // For subsequent jobs, create a new project UNLESS we just resumed
+    // after a navigation (the page is already on the new project)
+    if (isSubsequent && !this.state._isResumedAfterNavigation) {
+      alreadyOnProject = false;
     }
+    // Clear the resume flag — it's been consumed
+    delete this.state._isResumedAfterNavigation;
 
     if (alreadyOnProject) {
       // Continue on current project
@@ -2448,18 +2531,49 @@ class FlowCriativos {
         this.state.currentProjectId = this._getProjectIdFromUrl(tabUrlResponse?.url);
       } catch (_err) {}
       this._log(`Continuando job ${this.state.currentJobIndex + 1} no projeto atual.`, 'system');
+
+      // Scan existing videos to avoid re-downloading
+      try {
+        const existingVideos = await this.injectScript(scanExistingVideos);
+        if (Array.isArray(existingVideos) && existingVideos.length > 0) {
+          existingVideos.forEach(url => this.state.downloadedVideoUrls.add(url));
+          this._log(`Videos existentes: ${existingVideos.length} encontrados.`, 'info');
+        }
+      } catch (_err) {
+        this._log('Falha ao escanear videos existentes.', 'warn');
+      }
     } else {
-      // Create new project
+      // Save state BEFORE navigating — navigation will destroy this content script
       this.state.downloadedVideoUrls.clear();
       this._setStatus('Criando novo projeto...', 'info');
       this._log(`Iniciando job ${this.state.currentJobIndex + 1}...`, 'system');
 
+      // Persist state so the new content script can resume
+      await chrome.storage.local.set({
+        fc_resumeState: {
+          masterQueue: this.state.masterQueue,
+          currentJobIndex: this.state.currentJobIndex,
+          masterTaskList: [], // will be rebuilt
+          failedPromptsList: this.state.failedPromptsList,
+          newlyDownloadedCount: this.state.newlyDownloadedCount,
+          autoStartNextJob: this.state.autoStartNextJob,
+          nextProjectCounter: this.state.nextProjectCounter
+        }
+      });
+
       try {
+        // This navigates the tab — our content script will be destroyed!
+        // background.js handles the full navigation flow and the new content
+        // script will pick up from fc_resumeState
         const result = await chrome.runtime.sendMessage({
           type: 'createNewProject',
           tabId: this.state.flowTabId,
           selectors: SELECTORS
         });
+
+        // If we get here, we're still alive (e.g. the navigation was to a
+        // different tab, or something unexpected). Clear resume state.
+        await chrome.storage.local.remove('fc_resumeState');
 
         if (!result?.success) {
           throw new Error(result?.error || 'Falha ao criar novo projeto');
@@ -2468,6 +2582,8 @@ class FlowCriativos {
         this.state.currentProjectId = this._getProjectIdFromUrl(result.url);
         this._log(`Projeto criado: ${this.state.currentProjectId || 'N/A'}`, 'info');
       } catch (navErr) {
+        // If we caught this, the content script survived somehow. Clear resume.
+        try { await chrome.storage.local.remove('fc_resumeState'); } catch (_e) {}
         throw new Error('Falha na navegacao: ' + navErr.message);
       }
     }
@@ -2913,6 +3029,11 @@ class FlowCriativos {
 // =============================================================================
 
 (function initFlowCriativos() {
+  // Prevent duplicate initialization if content script is re-injected
+  if (document.getElementById('fc-overlay-wrapper')) {
+    console.log('[FlowCriativos] Already initialized, skipping.');
+    return;
+  }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => new FlowCriativos());
   } else {
