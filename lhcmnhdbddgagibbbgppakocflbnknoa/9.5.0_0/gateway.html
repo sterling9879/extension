@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Auto Flow Launcher</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+  <link rel="stylesheet" href="gateway.css">
+</head>
+
+<body>
+  <div class="top-bar">
+    <div class="lang-switch">
+      <span class="material-symbols-outlined">language</span>
+      <select id="languageSelector">
+        <option value="en">English</option>
+        <option value="vi">Tiếng Việt</option>
+        <option value="hi">हिन्दी (India)</option>
+        <option value="th">ไทย (Thailand)</option>
+        <option value="ur">اردو (Pakistan)</option>
+        <option value="bn">বাংলা (Bangladesh)</option>
+        <option value="es">Español</option>
+        <option value="tl">Filipino (Tagalog)</option>
+        <option value="pt">Português (Brasil)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="header">
+      <img src="images/logo.png" alt="Logo" class="logo">
+      <h1>Auto Flow</h1>
+      <p data-lang-key="subtitle">Automated Task Manager for <a href="https://labs.google/fx/tools/flow" target="_blank"
+          style="color: #8ab4f8;">Flow AI (Veo)</a>.</p>
+    </div>
+
+    <div class="versions">
+      <div class="version-card rainbow-glow" id="btn-classic">
+        <div class="badge-pro">EXTENSION</div>
+        <div class="icon-area pro">
+          <span class="material-symbols-outlined">extension</span>
+        </div>
+        <div class="info">
+          <h3 class="glow-text" data-lang-key="classic_title">Version 9.5.0 + Nano Banana Pro</h3>
+          <p data-lang-key="classic_desc">
+            Familiar extension version. Runs directly in your Chrome browser.
+          </p>
+        </div>
+        <span class="material-symbols-outlined arrow">chevron_right</span>
+      </div>
+
+      <div class="version-card new" id="btn-glabs">
+        <div class="badge" data-lang-key="badge_recommended">RECOMMENDED</div>
+        <div class="icon-area">
+          <span class="material-symbols-outlined">desktop_windows</span>
+        </div>
+        <div class="info">
+          <h3 data-lang-key="glabs_title">G-Labs Automation</h3>
+          <p data-lang-key="glabs_desc">
+            Create unlimited free images with Imagen 4 / Nano Banana. Comprehensive upgrade with Nano Banana Pro / Veo -
+            high speed and stable.
+          </p>
+        </div>
+        <span class="material-symbols-outlined arrow">open_in_new</span>
+      </div>
+
+      <!-- Quick Start Guide (collapsed by default) -->
+      <div class="changelog-card">
+        <div class="changelog-header collapsible collapsed" data-toggle="quickstart-body">
+          <span class="material-symbols-outlined">school</span>
+          <h4 data-lang-key="quickstart_title">Quick Start Guide</h4>
+          <span class="material-symbols-outlined collapse-chevron">expand_more</span>
+        </div>
+        <div id="quickstart-body" class="collapsible-body collapsed">
+          <div data-lang-key="quickstart_content"
+            style="font-size: 12px; color: #bdc1c6; line-height: 1.6; padding-top: 8px;">
+            <div style="margin-bottom: 12px;">
+              <strong style="color: #8ab4f8;">1. Nano Banana Pro (Text-to-Image)</strong>
+              <p style="margin: 4px 0 0 0; color: #9aa0a6;">Select "Nano Banana Pro" mode → Enter prompts → Add to Queue
+                → Start. Images generate in bulk.</p>
+            </div>
+            <div style="margin-bottom: 12px;">
+              <strong style="color: #8ab4f8;">2. Reference Images (Image-to-Image)</strong>
+              <p style="margin: 4px 0 0 0; color: #9aa0a6;">Click "Add" to upload reference images → Click image(s) to
+                activate → Enter prompts → Start. Use "Assign to Prompts" to assign different refs to different prompts.
+              </p>
+            </div>
+            <div style="margin-bottom: 12px;">
+              <strong style="color: #8ab4f8;">3. Gallery & 4K Downloads</strong>
+              <p style="margin: 4px 0 0 0; color: #9aa0a6;">Go to Gallery tab → Click "Refresh" to scan images → Click
+                images to select → Choose resolution (1K/2K/4K) → Download Selected.</p>
+            </div>
+            <div style="margin-bottom: 12px;">
+              <strong style="color: #8ab4f8;">4. Frame to Video</strong>
+              <p style="margin: 4px 0 0 0; color: #9aa0a6;">In Gallery, select your best images → Click "Frame to Video"
+                or "Merge" to add to existing job → Images are queued for Veo video generation.</p>
+            </div>
+            <div style="margin-bottom: 0;">
+              <strong style="color: #8ab4f8;">5. Video Gallery</strong>
+              <p style="margin: 4px 0 0 0; color: #9aa0a6;">Switch to Videos tab → Refresh to scan → Hover to preview →
+                Use speed slider (0.5x-6x) → Double-click to expand fullscreen.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Changelog v9.5.0 (expanded by default) -->
+      <div class="changelog-card">
+        <div class="changelog-header collapsible" data-toggle="changelog-950-body">
+          <span class="material-symbols-outlined">history</span>
+          <h4>v9.5.0</h4>
+          <span class="material-symbols-outlined collapse-chevron">expand_more</span>
+        </div>
+        <div id="changelog-950-body" class="collapsible-body">
+          <ul class="changelog-list" data-lang-key="changelog_950">
+            <li><span class="tag new">NEW</span> <strong>Download Queue + Cancel</strong> - Cancel button to stop
+              downloads mid-queue, progress bar with live counter</li>
+            <li><span class="tag new">NEW</span> <strong>Upscale-Aware Downloads</strong> - 1080p/4K downloads process
+              one at a time with wait between, preventing Flow's "Upscaling Failed" errors (max ~3 concurrent)</li>
+            <li><span class="tag new">NEW</span> <strong>Scan All Button</strong> - Golden glowing "Scan All" button
+              with tooltip explaining full-page scroll scan</li>
+            <li><span class="tag imp">IMP</span> <strong>3x Faster Video Scan</strong> - Reduced scroll delay from 800ms
+              to 350ms per step with larger scroll increments</li>
+            <li><span class="tag imp">IMP</span> <strong>Lazy Video Previews</strong> - Videos load on-demand instead of
+              all at once. Thumbnails auto-generate as you scroll — gallery loads instantly even with 100+ videos</li>
+            <li><span class="tag fix">FIX</span> <strong>Resolution Persistence</strong> - Video download resolution
+              (720p/1080p/4K) now saves across sessions. Default changed to 720p</li>
+            <li><span class="tag fix">FIX</span> <strong>Default Language</strong> - New installs default to English
+              instead of Vietnamese</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Changelog v9.4.0 (collapsed) -->
+      <div class="changelog-card">
+        <div class="changelog-header collapsible collapsed" data-toggle="changelog-940-body">
+          <span class="material-symbols-outlined">history</span>
+          <h4>v9.4.0</h4>
+          <span class="material-symbols-outlined collapse-chevron">expand_more</span>
+        </div>
+        <div id="changelog-940-body" class="collapsible-body collapsed">
+          <ul class="changelog-list" data-lang-key="changelog_940">
+            <li><span class="tag new">NEW</span> <strong>Full Gallery Scan</strong> - Gallery now scrolls through entire
+              Flow page to find ALL images/videos, even with 100+ items (beats Flow's lazy loading)</li>
+            <li><span class="tag new">NEW</span> <strong>Scroll-Aware Downloads</strong> - 2K/4K downloads automatically
+              scroll back to the image position for resolution selection</li>
+            <li><span class="tag fix">FIX</span> <strong>Reference Image Order</strong> - Image 1 now correctly appears
+              as most important (leftmost) in Flow</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Changelog v9.3.0 (collapsed) -->
+      <div class="changelog-card">
+        <div class="changelog-header collapsible collapsed" data-toggle="changelog-930-body">
+          <span class="material-symbols-outlined">history</span>
+          <h4>v9.3.0</h4>
+          <span class="material-symbols-outlined collapse-chevron">expand_more</span>
+        </div>
+        <div id="changelog-930-body" class="collapsible-body collapsed">
+          <ul class="changelog-list" data-lang-key="changelog_930">
+            <li><span class="tag new">NEW</span> <strong>Selective Prompt Redo</strong> - Click any job in Queue to see
+              all prompts, select specific ones to redo</li>
+            <li><span class="tag new">NEW</span> <strong>Merge to Existing Queue</strong> - Merge Frame-to-Video items
+              into an existing pending job instead of creating new ones</li>
+            <li><span class="tag new">NEW</span> <strong>Auto-Start Toggle</strong> - Control whether the next job
+              starts automatically or waits for manual start</li>
+            <li><span class="tag new">NEW</span> <strong>Interactive Tutorial</strong> - Click the ? button for a guided
+              walkthrough of all features</li>
+            <li><span class="tag fix">FIX</span> <strong>Image Auto-Download Resolution</strong> - Auto-download now
+              respects 2K/4K resolution setting (was always downloading 1K)</li>
+            <li><span class="tag imp">IMP</span> <strong>Tagalog Language</strong> - Full Filipino/Tagalog translation
+              added</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Changelog v9.2.0 (collapsed) -->
+      <div class="changelog-card">
+        <div class="changelog-header collapsible collapsed" data-toggle="changelog-920-body">
+          <span class="material-symbols-outlined">history</span>
+          <h4>v9.2.0</h4>
+          <span class="material-symbols-outlined collapse-chevron">expand_more</span>
+        </div>
+        <div id="changelog-920-body" class="collapsible-body collapsed">
+          <ul class="changelog-list" data-lang-key="changelog_920">
+            <li><span class="tag new">NEW</span> <strong>Per-Prompt Reference Images</strong> - Assign different
+              reference images to different prompts in a batch</li>
+            <li><span class="tag imp">IMP</span> <strong>Collapsible Sections</strong> - Cleaner UI with collapsible
+              Reference Images section</li>
+            <li><span class="tag imp">IMP</span> <strong>Settings Reorganized</strong> - Grouped settings with clear
+              sections (Generation, Timing, Interface)</li>
+            <li><span class="tag imp">IMP</span> <strong>Performance</strong> - Debounced saves, lazy-load thumbnails,
+              batch DOM updates</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Changelog v9.0.0 (collapsed) -->
+      <div class="changelog-card">
+        <div class="changelog-header collapsible collapsed" data-toggle="changelog-900-body">
+          <span class="material-symbols-outlined">history</span>
+          <h4>v9.0.0</h4>
+          <span class="material-symbols-outlined collapse-chevron">expand_more</span>
+        </div>
+        <div id="changelog-900-body" class="collapsible-body collapsed">
+          <ul class="changelog-list" data-lang-key="changelog_900">
+            <li><span class="tag new">NEW</span> <strong>Nano Banana Pro Mode</strong> - Full text-to-image generation
+              with 1K/2K/4K downloads</li>
+            <li><span class="tag new">NEW</span> <strong>Image Gallery</strong> - Scan, select, and batch download
+              generated images</li>
+            <li><span class="tag new">NEW</span> <strong>Frame to Video</strong> - Send gallery images directly to Veo
+              video queue</li>
+            <li><span class="tag new">NEW</span> <strong>Video Gallery</strong> - Preview videos with speed control,
+              batch download</li>
+            <li><span class="tag new">NEW</span> <strong>Reference Images</strong> - Upload and manage reference images
+              for image-to-image generation</li>
+            <li><span class="tag new">NEW</span> <strong>Queue System</strong> - Multi-job queue with download folders,
+              job management</li>
+            <li><span class="tag imp">IMP</span> <strong>8 Languages</strong> - Vietnamese, English, Hindi, Thai, Urdu,
+              Bengali, Spanish, Filipino</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="quick-links">
+      <a href="https://github.com/duckmartians/Auto-Flow" target="_blank" class="link-item">
+        <span class="material-symbols-outlined">menu_book</span> <span data-lang-key="link_guide">User Guide</span>
+      </a>
+      <a href="#" class="link-item" style="color: #fdd663;">
+        <span class="material-symbols-outlined">coffee</span> ☕️ duckmartians
+      </a>
+      <a href="https://ergophobia.info/" target="_blank" class="link-item" style="color: #4ade80;">
+        <span class="material-symbols-outlined">coffee</span> ☕ ergophobia
+      </a>
+    </div>
+
+    <div class="footer">
+      Designed by duckmartians + ergophobian
+    </div>
+  </div>
+  <script src="gateway.js"></script>
+</body>
+
+</html>

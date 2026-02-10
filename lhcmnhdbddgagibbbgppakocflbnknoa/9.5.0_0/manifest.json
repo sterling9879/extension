@@ -1,0 +1,25 @@
+{
+   "action": {
+      "default_title": "Auto Flow - Auto Veo & Nano Banana Pro"
+   },
+   "background": {
+      "service_worker": "background.js"
+   },
+   "default_locale": "en",
+   "description": "Automate your bulk video creation workflow on Google Flow AI. Supports latest models like VEO. Save time and accelerate creativity!",
+   "host_permissions": [ "https://labs.google/*" ],
+   "icons": {
+      "128": "images/icon128.png",
+      "16": "images/icon16.png",
+      "48": "images/icon48.png"
+   },
+   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApMgc7IlPdO7ROY1LaPDcBcsvCvLVF1ZT9nKM+lf9jZUdMP/plFg28A+vHHFJOwni1JmPODOuYogr9FYnJuHvejdIkXpgU6wquOW9F6GP0YWlNSrb3tTSVsDBViKsjD9+vAoGOx0nW55UzPbMvzZDay+iu4dT3aTtqPFWG57Hk+Rr7HmpvM0Vufre2t4Rj+aETO03/0NmjEx5eOZSZGbhsitzjMzc9ApYy+SL/hc7yAMU/o305OYFVsyg/A4vR65EeqUX+/c0E7tUo6zx2LJrRr/GSu6+FELmB0wSM8ZeaJdVYWirWoGSybv3mTVpVOlM/yTYrkXiefa6UFn8OMa6HQIDAQAB",
+   "manifest_version": 3,
+   "name": "Auto Flow - Auto Veo & Nano Banana Pro",
+   "permissions": [ "sidePanel", "activeTab", "scripting", "storage", "tabs", "downloads" ],
+   "side_panel": {
+      "default_path": "gateway.html"
+   },
+   "update_url": "https://clients2.google.com/service/update2/crx",
+   "version": "9.5.0"
+}

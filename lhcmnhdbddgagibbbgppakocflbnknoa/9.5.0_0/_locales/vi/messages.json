@@ -1,0 +1,10 @@
+{
+   "extDescription": {
+      "description": "Mô tả ngắn về tiện ích.",
+      "message": "Tự động hóa quy trình tạo video hàng loạt trên Google Flow AI. Hỗ trợ các mô hình mới nhất như VEO. Tiết kiệm thời gian và tăng tốc sáng tạo!"
+   },
+   "extName": {
+      "description": "Tên của tiện ích.",
+      "message": "Auto Flow - Auto Veo & Nano Banana Pro"
+   }
+}

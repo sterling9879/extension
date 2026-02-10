@@ -1,0 +1,10 @@
+{
+   "extDescription": {
+      "description": "A short description of the extension.",
+      "message": "Automate your bulk video creation workflow on Google Flow AI. Supports latest models like VEO. Save time and accelerate creativity!"
+   },
+   "extName": {
+      "description": "The name of the extension.",
+      "message": "Auto Flow - Auto Veo & Nano Banana Pro"
+   }
+}
