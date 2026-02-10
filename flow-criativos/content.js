@@ -244,8 +244,8 @@ async function selectImageMode(selectors) {
     if (!dropdown) return false;
 
     if (dropdown.textContent &&
-      (dropdown.textContent.includes('Image-to-Video') ||
-       dropdown.textContent.includes('image-to-video'))) return true;
+      (dropdown.textContent.includes('T\u1EA1o video t\u1EEB c\u00E1c khung h\u00ECnh') ||
+       dropdown.textContent.includes('Image-to-Video'))) return true;
 
     dropdown.click();
     await new Promise(r => setTimeout(r, 500));
@@ -276,8 +276,8 @@ async function selectTextMode(selectors) {
     if (!dropdown) return false;
 
     if (dropdown.textContent &&
-      (dropdown.textContent.includes('Text-to-Video') ||
-       dropdown.textContent.includes('text-to-video'))) return true;
+      (dropdown.textContent.includes('T\u1EEB v\u0103n') ||
+       dropdown.textContent.includes('Text-to-Video'))) return true;
 
     dropdown.click();
     await new Promise(r => setTimeout(r, 500));
@@ -875,7 +875,7 @@ class FlowCriativos {
       isPaused: false,
       stopRequested: false,
       skipRequested: false,
-      MAX_RETRIES: 3,
+      MAX_RETRIES: 5,
       promptList: [],
       failedPromptsList: [],
       taskList: [],
@@ -1861,37 +1861,37 @@ class FlowCriativos {
   }
 
   async _interruptibleSleep(ms) {
-    const step = 500;
-    let elapsed = 0;
-    while (elapsed < ms) {
-      if (this.state.stopRequested) return;
-      await this._sleep(Math.min(step, ms - elapsed));
-      elapsed += step;
+    const endTime = Date.now() + ms;
+    while (Date.now() < endTime) {
+      await this._pauseIfNeeded();
+      if (this.state.stopRequested) return true;
+      const remaining = endTime - Date.now();
+      await this._sleep(Math.min(250, remaining > 0 ? remaining : 0));
     }
+    return false;
   }
 
   async _interruptibleSleepAndScan(ms) {
-    const step = 500;
-    let elapsed = 0;
-    const scanInterval = 3000;
-    let lastScan = 0;
+    const endTime = Date.now() + ms;
+    let nextScanTime = Date.now() + 4000;
 
-    while (elapsed < ms) {
+    while (Date.now() < endTime) {
+      await this._pauseIfNeeded();
       if (this.state.stopRequested) return 'STOPPED';
-      await this._sleep(Math.min(step, ms - elapsed));
-      elapsed += step;
-      lastScan += step;
 
-      // Periodic policy error check
-      if (lastScan >= scanInterval) {
-        lastScan = 0;
+      const now = Date.now();
+      if (now >= nextScanTime) {
         try {
-          const hasPolicyError = await this.injectScript(scanForPolicyError);
-          if (hasPolicyError) return 'POLICY_ERROR';
-        } catch (_err) {}
+          if (await this.injectScript(scanForPolicyError)) return 'POLICY_ERROR';
+        } catch (_ignoredError) {}
+        nextScanTime = now + 1000;
       }
+
+      const remaining = endTime - now;
+      const sleepTime = Math.min(250, remaining > 0 ? remaining : 0, nextScanTime - now);
+      await this._sleep(sleepTime > 0 ? sleepTime : 0);
     }
-    return 'OK';
+    return 'COMPLETED';
   }
 
   async _pauseIfNeeded() {
@@ -1901,9 +1901,11 @@ class FlowCriativos {
   }
 
   _getRandomWait() {
-    const min = this.state.delayMin || 2000;
-    const max = this.state.delayMax || 4000;
-    return Math.floor(Math.random() * (max - min + 1)) + min;
+    const minVal = parseInt(this.dom.configDelayMin?.value || '90', 10) || 90;
+    const maxVal = parseInt(this.dom.configDelayMax?.value || '120', 10) || 120;
+    const lower = Math.min(minVal, maxVal);
+    const upper = Math.max(minVal, maxVal);
+    return Math.max(1000, 1000 * (Math.floor(Math.random() * (upper - lower + 1)) + lower));
   }
 
   _getProjectIdFromUrl(url) {
@@ -1913,10 +1915,13 @@ class FlowCriativos {
   }
 
   _readFileAsDataURL(blob) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       const reader = new FileReader();
       reader.onload = () => resolve(reader.result);
-      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.onerror = () => {
+        this._log('Erro ao ler arquivo: ' + (blob?.name || 'unknown'), 'error');
+        resolve(null);
+      };
       reader.readAsDataURL(blob);
     });
   }
@@ -1958,14 +1963,22 @@ class FlowCriativos {
         return response.result;
       } else {
         const errorMsg = response?.error || 'Unknown error';
-        if (!this.state.stopRequested &&
-          !errorMsg.includes('No tab with id') &&
-          !errorMsg.includes('Receiving end does not exist')) {
+        // Tab-related errors: throw (like original) so callers can catch
+        if (errorMsg.includes('No tab with id') ||
+          errorMsg.includes('Receiving end does not exist')) {
+          throw new Error(errorMsg);
+        }
+        if (!this.state.stopRequested) {
           this._log('Erro de inject: ' + errorMsg, 'error');
         }
         return undefined;
       }
     } catch (err) {
+      // Re-throw tab-related errors
+      if (err.message?.includes('No tab with id') ||
+        err.message?.includes('Receiving end does not exist')) {
+        throw err;
+      }
       if (!this.state.stopRequested) {
         this._log('Erro ao executar script: ' + err.message, 'error');
       }
@@ -2008,6 +2021,8 @@ class FlowCriativos {
           this._log('Aba Flow fechada ou inacessivel.', 'error');
         }
         this._stopScanner();
+      } else if (!this.state.stopRequested) {
+        this._log('Erro no scanner: ' + (scanError?.message || 'unknown'), 'error');
       }
       return;
     }
@@ -2690,7 +2705,7 @@ class FlowCriativos {
         this._setStatus(`Scan final do job ${this.state.currentJobIndex + 1}...`, 'info');
 
         const scanStartTime = Date.now();
-        const scanTimeoutMs = this.state.retryTimeout * 1000;
+        const scanTimeoutMs = 90000;
         const scanCheckInterval = 5000;
 
         await new Promise((resolve) => {
@@ -2812,12 +2827,9 @@ class FlowCriativos {
       this._processNextJob(true);
     } else if (this.state.isRunning) {
       this._log('Pulando job atual...', 'info');
-      this.state.skipRequested = true;
       this.state.stopRequested = true;
       setTimeout(() => {
         this.state.stopRequested = false;
-        this.state.skipRequested = false;
-        this.state.isRunning = true;
         this.state.currentJobIndex++;
         const nextPending = this.state.masterQueue.findIndex(
           (job, idx) => idx >= this.state.currentJobIndex && job.status === 'pending'
